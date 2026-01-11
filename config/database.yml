@@ -1,0 +1,29 @@
+development:
+  adapter: postgresql
+  encoding: unicode
+  database: migration_demo_dev
+  pool: 5
+  username: migrator
+  password: <%= ENV['DB_PASSWORD'] || 'secure_password' %>
+  host: localhost
+  port: 5432
+
+test:
+  adapter: postgresql
+  encoding: unicode
+  database: migration_demo_test
+  pool: 5
+  username: migrator
+  password: <%= ENV['DB_PASSWORD'] || 'secure_password' %>
+  host: localhost
+  port: 5432
+
+production:
+  adapter: postgresql
+  encoding: unicode
+  database: <%= ENV['DB_NAME'] %>
+  pool: <%= ENV['DB_POOL'] || 5 %>
+  username: <%= ENV['DB_USERNAME'] %>
+  password: <%= ENV['DB_PASSWORD'] %>
+  host: <%= ENV['DB_HOST'] %>
+  port: <%= ENV['DB_PORT'] || 5432 %>
