@@ -1,0 +1,162 @@
+---
+# Ansible Playbook for Migration Server Provisioning
+# Provisions Ubuntu server with required dependencies
+
+- name: Provision Data Migration Server
+  hosts: migration_servers
+  become: yes
+  vars:
+    ruby_version: "3.2"
+    postgresql_version: "15"
+    app_user: migrator
+    app_directory: /opt/data-migration
+    
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+        
+    - name: Install system dependencies
+      apt:
+        name:
+          - build-essential
+          - git
+          - curl
+          - wget
+          - vim
+          - htop
+          - unzip
+        state: present
+        
+    - name: Install Ruby
+      apt:
+        name:
+          - ruby
+          - ruby-dev
+          - ruby-bundler
+        state: present
+        
+    - name: Verify Ruby installation
+      command: ruby --version
+      register: ruby_version_output
+      changed_when: false
+      
+    - name: Display Ruby version
+      debug:
+        msg: "Ruby version: {{ ruby_version_output.stdout }}"
+        
+    - name: Install PostgreSQL
+      apt:
+        name:
+          - postgresql
+          - postgresql-contrib
+          - libpq-dev
+        state: present
+        
+    - name: Start PostgreSQL service
+      service:
+        name: postgresql
+        state: started
+        enabled: yes
+        
+    - name: Install Python pip for AWS CLI
+      apt:
+        name:
+          - python3-pip
+        state: present
+        
+    - name: Install AWS CLI
+      pip:
+        name: awscli
+        state: present
+        executable: pip3
+        
+    - name: Create application user
+      user:
+        name: "{{ app_user }}"
+        shell: /bin/bash
+        create_home: yes
+        
+    - name: Create application directory
+      file:
+        path: "{{ app_directory }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+        
+    - name: Create PostgreSQL database user
+      postgresql_user:
+        name: "{{ app_user }}"
+        password: "{{ lookup('env', 'DB_PASSWORD') | default('secure_password', true) }}"
+        role_attr_flags: CREATEDB
+      become_user: postgres
+      
+    - name: Create PostgreSQL database
+      postgresql_db:
+        name: migration_demo
+        owner: "{{ app_user }}"
+      become_user: postgres
+      
+    - name: Install bundler
+      gem:
+        name: bundler
+        state: present
+        user_install: no
+        
+    - name: Create data directories
+      file:
+        path: "{{ item }}"
+        state: directory
+        owner: "{{ app_user }}"
+        group: "{{ app_user }}"
+        mode: '0755'
+      loop:
+        - "{{ app_directory }}/data/input"
+        - "{{ app_directory }}/data/output"
+        - "{{ app_directory }}/logs"
+        - "{{ app_directory }}/backups"
+        
+    - name: Configure firewall for PostgreSQL
+      ufw:
+        rule: allow
+        port: '5432'
+        proto: tcp
+      when: ansible_facts['os_family'] == "Debian"
+      
+    - name: Install logrotate configuration
+      copy:
+        dest: /etc/logrotate.d/data-migration
+        content: |
+          {{ app_directory }}/logs/*.log {
+              daily
+              missingok
+              rotate 14
+              compress
+              delaycompress
+              notifempty
+              create 0640 {{ app_user }} {{ app_user }}
+          }
+        mode: '0644'
+        
+    - name: Set up cron for cleanup old backups
+      cron:
+        name: "Clean old migration backups"
+        minute: "0"
+        hour: "2"
+        job: "find {{ app_directory }}/backups -name '*.csv' -mtime +30 -delete"
+        user: "{{ app_user }}"
+        
+    - name: Display deployment information
+      debug:
+        msg:
+          - "Server provisioned successfully!"
+          - "Application directory: {{ app_directory }}"
+          - "Database user: {{ app_user }}"
+          - "PostgreSQL database: migration_demo"
+          - "Next steps:"
+          - "  1. Deploy application code to {{ app_directory }}"
+          - "  2. Configure AWS credentials"
+          - "  3. Run bundle install"
+          - "  4. Run migrations"
