@@ -4,7 +4,7 @@ ruby '>= 3.0.0'
 
 # Core dependencies
 gem 'pg', '~> 1.5'              # PostgreSQL adapter
-gem 'aws-sdk-s3', '~> 1.140'    # AWS S3 integration
+#gem 'aws-sdk-s3', '~> 1.140'    # AWS S3 integration
 gem 'json', '~> 2.7'            # JSON handling
 gem 'csv', '~> 3.2'             # CSV parsing
 gem 'mongo', '~> 2.19'
@@ -19,6 +19,6 @@ gem 'logger', '~> 1.6'          # Logging
 
 # Development
 group :development do
-  gem 'rubocop', '~> 1.59'      # Code style
+#  gem 'rubocop', '~> 1.50'      # Code style
   gem 'pry', '~> 0.14'          # Debugging
 end
