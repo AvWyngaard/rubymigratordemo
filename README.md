@@ -79,7 +79,7 @@ sudo apt-get install postgresql postgresql-contrib
 # Create database and user
 sudo -u postgres psql
 CREATE DATABASE migration_demo;
-CREATE USER migrator WITH PASSWORD 'secure_password';
+CREATE USER migrator WITH PASSWORD 'migrator';
 GRANT ALL PRIVILEGES ON DATABASE migration_demo TO migrator;
 \q
 
@@ -153,14 +153,6 @@ Starting migration: patients.csv
 [2025-01-10 15:30:06] ✓ Imported 150 records
 [2025-01-10 15:30:06] Migration completed successfully!
 ```
-
-## Next Steps
-
-- Add MongoDB source adapter for NoSQL migrations
-- Implement incremental migration support
-- Add data anonymization capabilities
-- Create migration rollback functionality
-- Build monitoring dashboard
 
 ## Contact
 
