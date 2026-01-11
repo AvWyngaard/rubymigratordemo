@@ -7,6 +7,7 @@ gem 'pg', '~> 1.5'              # PostgreSQL adapter
 gem 'aws-sdk-s3', '~> 1.140'    # AWS S3 integration
 gem 'json', '~> 2.7'            # JSON handling
 gem 'csv', '~> 3.2'             # CSV parsing
+gem 'mongo', '~> 2.19'
 
 # Testing
 gem 'rspec', '~> 3.12'          # Testing framework
