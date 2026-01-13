@@ -62,20 +62,59 @@ cat data/input/patients.csv
 
 You'll see 10 sample patient records.
 
-### Step 2: Validate the Data
+### Step 2: Generate test data
 
 ```bash
-./scripts/validate_data.sh data/input/patients.csv
+ruby ./lib/data_generators/simple_medical_data.rb
 ```
 
 Expected output:
 ```
-[INFO] Validating: patients.csv
-========================================
-[INFO] File size: 2KB
-[INFO] Line count: 11
-...
-✓ All records valid
+Clearing existing collections...
+Creating sample medical practice data...
+
+Creating practitioners...
+Created 15 practitioners
+
+Creating patients...
+Created 100 patients
+
+Creating appointments...
+Created 200 appointments
+
+Creating medications...
+Created 150 medications
+
+==================================================
+DATABASE SEEDING COMPLETE
+==================================================
+
+Database: medical_practice_demo
+Collections created:
+  - practitioners: 15 documents
+  - patients: 100 documents
+  - appointments: 200 documents
+  - medications: 150 documents
+
+Intentional data quality issues included:
+  ✓ Missing/null values (~10-20% error rate per field)
+  ✓ Empty strings and whitespace-only values
+  ✓ Duplicate SSNs (some patients share SSN '123-45-6789')
+  ✓ Invalid dates (future dates, nulls)
+  ✓ Orphaned references (appointments/medications without valid patient/practitioner)
+  ✓ Formatting inconsistencies (uppercase names, extra characters)
+  ✓ Invalid numeric values (negative numbers)
+  ✓ Empty arrays in list fields
+  ✓ Missing nested object fields
+
+You can now test your data migration and validation logic!
+
+To connect: mongo mongodb://localhost:27017/medical_practice_demo
+```
+### Step 3: Run Validation and Cleaning Script
+
+```bash
+ruby ./lib/data_generators/simple_medical_data.rb
 ```
 
 ### Step 3: Run Migration
