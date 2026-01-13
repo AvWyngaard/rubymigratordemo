@@ -114,7 +114,7 @@ To connect: mongo mongodb://localhost:27017/medical_practice_demo
 ### Step 3: Run Validation and Cleaning Script
 
 ```bash
-ruby ./lib/data_generators/simple_medical_data.rb
+ruby ./lib/validators/simple_data_validator.rb
 ```
 
 ### Step 3: Run Migration
